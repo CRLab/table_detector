@@ -19,7 +19,7 @@
 #include "shape_msgs/Mesh.h"
 #include "geometric_shapes/shapes.h"
 #include "geometric_shapes/mesh_operations.h"
-#include "graspit_shape_completion/GetSegmentedMeshedSceneAction.h"
+
 #include "actionlib/server/simple_action_server.h"
 
 #include <pcl/surface/gp3.h>
@@ -71,7 +71,7 @@ TableDetector::TableDetector():
     node_handle("table_detector")
 {
 
-    pointCloudSubscriber =  node_handle.subscribe("/camera/depth_registered/points", 10,  &TableDetector::pointCloudCB, this);
+    pointCloudSubscriber =  node_handle.subscribe("/head_camera/depth_registered/points", 10,  &TableDetector::pointCloudCB, this);
     zPublisher = node_handle.advertise<geometry_msgs::Vector3>("tablePose", 10);
 
     ROS_INFO("table_detector_node ready\n");
@@ -128,7 +128,15 @@ int main(int argc, char **argv)
 
   TableDetector node;
 
-  ros::spin();
+  //5 hz
+  ros::Rate r(5);
+  
+  while(ros::ok())
+    {
+      ros::spinOnce();
+      r.sleep();
+    }
+  
 
   return 0;
 }
