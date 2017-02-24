@@ -71,7 +71,7 @@ TableDetector::TableDetector():
     node_handle("table_detector")
 {
 
-    pointCloudSubscriber =  node_handle.subscribe("/head_camera/depth_registered/points", 10,  &TableDetector::pointCloudCB, this);
+    pointCloudSubscriber =  node_handle.subscribe("/kinect2/sd/points", 10,  &TableDetector::pointCloudCB, this);
     zPublisher = node_handle.advertise<geometry_msgs::Vector3>("tablePose", 10);
 
     ROS_INFO("table_detector_node ready\n");
@@ -93,7 +93,7 @@ void TableDetector::pointCloudCB(const sensor_msgs::PointCloud2::ConstPtr &msg)
     pcl::IndicesPtr inliers (new std::vector<int>());
 
     pcl::RandomSampleConsensus<pcl::PointXYZ> ransac (model_p);
-    ransac.setDistanceThreshold (.01);
+    ransac.setDistanceThreshold (.0025);
     ransac.computeModel();
     ransac.getInliers(*inliers);
 
@@ -104,7 +104,7 @@ void TableDetector::pointCloudCB(const sensor_msgs::PointCloud2::ConstPtr &msg)
     Eigen::Matrix3f eigen_vectors = pca.getEigenVectors();
 
     geometry_msgs::Vector3 zvector;
-    if(eigen_vectors(1,2) > 0)
+    if(eigen_vectors(2,2) > 0)
     {
         zvector.x = -eigen_vectors(0,2);
         zvector.y = -eigen_vectors(1,2);
